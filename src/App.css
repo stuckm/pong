@@ -1,3 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -51,20 +61,72 @@
   align-items: center;
   background-color: #1a1a1a;
   color: white;
-  padding: 2rem;
+  padding: 1rem 0.5rem;
 }
 
 h1 {
-  margin-bottom: 2rem;
-  font-size: 2.5rem;
+  margin: 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 2rem;
   color: #fff;
+  text-align: center;
+  height: 4rem;
+  display: flex;
+  align-items: center;
 }
 
 .pong-game {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 600px;
+  height: calc(100vh - 6rem);
+}
+
+.game-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 800px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.scores {
+  display: flex;
+  gap: 2rem;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score .label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.score .value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.pause-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.pause-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .play-button {
@@ -85,4 +147,6 @@ h1 {
 canvas {
   background-color: #000;
   border-radius: 8px;
+  max-height: calc(100vh - 7rem);
+  width: auto;
 }
