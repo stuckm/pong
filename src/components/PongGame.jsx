@@ -8,7 +8,7 @@ const PongGame = () => {
     const PADDLE_HEIGHT = 100;
     const PADDLE_WIDTH = 10;
     const BALL_SIZE = 10;
-    const PADDLE_SPEED = 5;
+    const PADDLE_SPEED = 50;
 
     // Game state
     const gameState = useRef({
@@ -46,13 +46,16 @@ const PongGame = () => {
 
         // Handle keyboard input
         const handleKeyDown = (e) => {
-            if (e.key === 'ArrowUp') {
-                gameState.current.playerY = Math.max(0, gameState.current.playerY - PADDLE_SPEED);
-            } else if (e.key === 'ArrowDown') {
-                gameState.current.playerY = Math.min(
-                    canvas.height - PADDLE_HEIGHT,
-                    gameState.current.playerY + PADDLE_SPEED
-                );
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevent default scrolling
+                if (e.key === 'ArrowUp') {
+                    gameState.current.playerY = Math.max(0, gameState.current.playerY - PADDLE_SPEED);
+                } else if (e.key === 'ArrowDown') {
+                    gameState.current.playerY = Math.min(
+                        canvas.height - PADDLE_HEIGHT,
+                        gameState.current.playerY + PADDLE_SPEED
+                    );
+                }
             }
         };
 
@@ -90,9 +93,9 @@ const PongGame = () => {
             // CPU paddle movement
             const cpuPaddleCenter = state.cpuY + PADDLE_HEIGHT / 2;
             if (cpuPaddleCenter < state.ballY - 35) {
-                state.cpuY = Math.min(height - PADDLE_HEIGHT, state.cpuY + 4);
+                state.cpuY = Math.min(height - PADDLE_HEIGHT, state.cpuY + 8);
             } else if (cpuPaddleCenter > state.ballY + 35) {
-                state.cpuY = Math.max(0, state.cpuY - 4);
+                state.cpuY = Math.max(0, state.cpuY - 8);
             }
 
             // Scoring
