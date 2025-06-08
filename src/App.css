@@ -77,9 +77,56 @@ h1 {
 
 .pong-game {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: calc(100vh - 6rem);
+}
+
+.game-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 800px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.scores {
+  display: flex;
+  gap: 2rem;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score .label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.score .value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.pause-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.pause-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .play-button {

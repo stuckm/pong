@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
+import GameControls from './GameControls';
 
 const PongGame = () => {
     const canvasRef = useRef(null);
     const [gameStarted, setGameStarted] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const [playerScore, setPlayerScore] = useState(0);
+    const [cpuScore, setCpuScore] = useState(0);
 
     // Game constants
     const PADDLE_HEIGHT = 100;
     const PADDLE_WIDTH = 10;
     const BALL_SIZE = 10;
-    const PADDLE_SPEED = 50;
+    const PADDLE_SPEED = 10;
 
     // Game state
     const gameState = useRef({
@@ -18,9 +22,25 @@ const PongGame = () => {
         ballY: 0,
         ballSpeedX: 0,
         ballSpeedY: 0,
-        playerScore: 0,
-        cpuScore: 0,
     });
+
+    // Initialize game state
+    const initGame = () => {
+        if (!canvasRef.current) return;
+
+        const canvas = canvasRef.current;
+        const { width, height } = canvas;
+        gameState.current = {
+            playerY: height / 2 - PADDLE_HEIGHT / 2,
+            cpuY: height / 2 - PADDLE_HEIGHT / 2,
+            ballX: width / 2,
+            ballY: height / 2,
+            ballSpeedX: 5,
+            ballSpeedY: 5,
+        };
+        setPlayerScore(0);
+        setCpuScore(0);
+    };
 
     useEffect(() => {
         if (!gameStarted) return;
@@ -28,21 +48,6 @@ const PongGame = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
-
-        // Initialize game state
-        const initGame = () => {
-            const { width, height } = canvas;
-            gameState.current = {
-                playerY: height / 2 - PADDLE_HEIGHT / 2,
-                cpuY: height / 2 - PADDLE_HEIGHT / 2,
-                ballX: width / 2,
-                ballY: height / 2,
-                ballSpeedX: 5,
-                ballSpeedY: 5,
-                playerScore: 0,
-                cpuScore: 0,
-            };
-        };
 
         // Handle keyboard input
         const handleKeyDown = (e) => {
@@ -61,6 +66,8 @@ const PongGame = () => {
 
         // Update game state
         const update = () => {
+            if (isPaused) return;
+
             const { width, height } = canvas;
             const state = gameState.current;
 
@@ -93,17 +100,17 @@ const PongGame = () => {
             // CPU paddle movement
             const cpuPaddleCenter = state.cpuY + PADDLE_HEIGHT / 2;
             if (cpuPaddleCenter < state.ballY - 35) {
-                state.cpuY = Math.min(height - PADDLE_HEIGHT, state.cpuY + 8);
+                state.cpuY = Math.min(height - PADDLE_HEIGHT, state.cpuY + 2);
             } else if (cpuPaddleCenter > state.ballY + 35) {
-                state.cpuY = Math.max(0, state.cpuY - 8);
+                state.cpuY = Math.max(0, state.cpuY - 2);
             }
 
             // Scoring
             if (state.ballX <= 0) {
-                state.cpuScore++;
+                setCpuScore(prev => prev + 1);
                 resetBall();
             } else if (state.ballX >= width) {
-                state.playerScore++;
+                setPlayerScore(prev => prev + 1);
                 resetBall();
             }
         };
@@ -135,10 +142,15 @@ const PongGame = () => {
             ctx.arc(state.ballX, state.ballY, BALL_SIZE / 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw scores
-            ctx.font = '32px Arial';
-            ctx.fillText(state.playerScore, width / 4, 50);
-            ctx.fillText(state.cpuScore, (width * 3) / 4, 50);
+            // Draw pause overlay if game is paused
+            if (isPaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = '#fff';
+                ctx.font = '48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', width / 2, height / 2);
+            }
         };
 
         // Game loop
@@ -148,8 +160,7 @@ const PongGame = () => {
             animationFrameId = requestAnimationFrame(gameLoop);
         };
 
-        // Initialize and start game
-        initGame();
+        // Start game loop
         window.addEventListener('keydown', handleKeyDown);
         gameLoop();
 
@@ -158,24 +169,47 @@ const PongGame = () => {
             window.removeEventListener('keydown', handleKeyDown);
             cancelAnimationFrame(animationFrameId);
         };
+    }, [gameStarted, isPaused]);
+
+    const handlePauseToggle = () => {
+        setIsPaused(!isPaused);
+    };
+
+    const handleStartGame = () => {
+        setGameStarted(true);
+    };
+
+    // Initialize game after canvas is rendered
+    useEffect(() => {
+        if (gameStarted) {
+            initGame();
+        }
     }, [gameStarted]);
 
     return (
         <div className="pong-game">
             {!gameStarted ? (
                 <button
-                    onClick={() => setGameStarted(true)}
+                    onClick={handleStartGame}
                     className="play-button"
                 >
                     Play Pong
                 </button>
             ) : (
-                <canvas
-                    ref={canvasRef}
-                    width={800}
-                    height={600}
-                    style={{ border: '2px solid white' }}
-                />
+                <>
+                    <GameControls
+                        playerScore={playerScore}
+                        cpuScore={cpuScore}
+                        onPauseToggle={handlePauseToggle}
+                        isPaused={isPaused}
+                    />
+                    <canvas
+                        ref={canvasRef}
+                        width={800}
+                        height={600}
+                        style={{ border: '2px solid white' }}
+                    />
+                </>
             )}
         </div>
     );
